@@ -1,8 +1,8 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import { generatePrompt } from "@/app/actions";
-import { useState, useEffect } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { QRGenerator } from "@/components/qr/qr-generator";
 import { QRActions } from "@/components/qr/qr-actions";
@@ -41,7 +41,7 @@ const initialState: FormState = {
 };
 
 export function PromptInput() {
-    const [state, formAction] = useFormState(generatePrompt as any, initialState);
+    const [state, formAction] = useActionState(generatePrompt as any, initialState);
     const [generatedUrl, setGeneratedUrl] = useState<string>("");
 
     useEffect(() => {

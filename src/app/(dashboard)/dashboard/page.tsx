@@ -22,7 +22,7 @@ export default async function DashboardPage() {
                     {/* Placeholder for potential back button or logo */}
                 </div>
                 <h1 className="text-lg font-bold leading-tight tracking-[-0.015em] text-zinc-900 dark:text-white">Dashboard</h1>
-                <div className="flex w-12 items-center justify-end">
+                <div className="flex items-center justify-end gap-3">
                     <Link href="/">
                         <button className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary text-white">
                             <span className="material-symbols-outlined text-2xl">add</span>
