@@ -1,13 +1,21 @@
-import { PromptInput } from "@/components/forms/prompt-input";
+import { auth } from "@/auth";
+import { CreateFlow } from "@/components/create/create-flow";
 
-export default function Home() {
+export default async function Home() {
+    const session = await auth();
+
     return (
-        <>
-            {/* Headline & Body Text */}
-            <h2 className="text-slate-900 dark:text-white tracking-light text-[32px] font-bold leading-tight text-left pb-1">Generate a New QR Code</h2>
-            <p className="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal pb-6">Paste your long text or URL below to create a shareable QR code.</p>
+        <div className="mx-auto w-full max-w-[1060px] px-2 pb-20 pt-6 sm:pt-10">
+            <h1 className="text-center font-display text-4xl font-bold leading-tight sm:text-5xl">
+                Paste it. <span className="text-primary">QR it.</span> Share it.
+            </h1>
+            <p className="mx-auto mt-3 max-w-xl text-center text-base text-muted-foreground">
+                Long text in, tiny scannable link out — encrypted, no account needed.
+            </p>
 
-            <PromptInput />
-        </>
+            <div className="mt-8">
+                <CreateFlow isLoggedIn={!!session?.user} />
+            </div>
+        </div>
     );
 }

@@ -6,15 +6,35 @@ export async function GlobalHeader() {
     const session = await auth();
 
     return (
-        <header className="sticky top-0 z-50 flex h-14 w-full items-center justify-between border-b border-white/10 bg-background-light/80 px-4 backdrop-blur-sm dark:bg-background-dark/80">
-            <div className="flex items-center">
-                <Link href={session ? "/dashboard" : "/"} className="text-lg font-bold tracking-[-0.015em] text-zinc-900 dark:text-white">
-                    PromptKey
+        <header className="mx-auto flex w-full max-w-[1060px] items-center gap-2.5 px-5 pb-2 pt-5">
+            <Link href="/" className="flex items-center gap-2.5">
+                <span
+                    aria-hidden="true"
+                    className="flex size-9 items-center justify-center rounded-xl bg-primary text-lg shadow-[0_4px_14px_color-mix(in_srgb,var(--primary)_35%,transparent)]"
+                >
+                    🔑
+                </span>
+                <span className="font-display text-xl font-bold tracking-[0.2px]">PromptKey</span>
+            </Link>
+
+            <nav className="ml-4 hidden gap-1 sm:flex">
+                <Link
+                    href="/"
+                    className="rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                >
+                    Make
                 </Link>
-            </div>
-            <div className="flex items-center gap-4">
-                <HeaderActions isLoggedIn={!!session} />
-            </div>
+                <Link
+                    href="/dashboard"
+                    className="rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                >
+                    Library
+                </Link>
+            </nav>
+
+            <div className="flex-1" />
+
+            <HeaderActions isLoggedIn={!!session} />
         </header>
     );
 }

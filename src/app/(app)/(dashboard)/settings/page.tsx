@@ -4,15 +4,14 @@ import Link from "next/link";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "next-themes";
 import { handleSignOut } from "@/app/actions/auth";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+const emptySubscribe = () => () => {};
 
 export default function SettingsPage() {
     const { theme, setTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    // true after hydration only — avoids a server/client toggle mismatch
+    const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
     return (
         <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md flex-col overflow-x-hidden bg-background-light dark:bg-background-dark">
             {/* Top App Bar */}
@@ -41,43 +40,13 @@ export default function SettingsPage() {
                     </h2>
                     <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
                         <Link href="/settings/edit-profile">
-                            <div className="flex items-center justify-between border-b border-white/10 p-4 transition-colors hover:bg-white/5 active:bg-white/10">
+                            <div className="flex items-center justify-between p-4 transition-colors hover:bg-white/5 active:bg-white/10">
                                 <div className="flex items-center gap-3">
                                     <div className="flex size-8 items-center justify-center rounded-lg bg-[#0ea5e9]/20 text-[#0ea5e9]">
                                         <span className="material-symbols-outlined text-xl">person</span>
                                     </div>
                                     <span className="text-base font-medium text-zinc-900 dark:text-white">
                                         Edit Profile
-                                    </span>
-                                </div>
-                                <span className="material-symbols-outlined text-xl text-zinc-500 dark:text-zinc-600">
-                                    chevron_right
-                                </span>
-                            </div>
-                        </Link>
-                        <Link href="/settings/change-password">
-                            <div className="flex items-center justify-between border-b border-white/10 p-4 transition-colors hover:bg-white/5 active:bg-white/10">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex size-8 items-center justify-center rounded-lg bg-[#0ea5e9]/20 text-[#0ea5e9]">
-                                        <span className="material-symbols-outlined text-xl">lock</span>
-                                    </div>
-                                    <span className="text-base font-medium text-zinc-900 dark:text-white">
-                                        Change Password
-                                    </span>
-                                </div>
-                                <span className="material-symbols-outlined text-xl text-zinc-500 dark:text-zinc-600">
-                                    chevron_right
-                                </span>
-                            </div>
-                        </Link>
-                        <Link href="/settings/linked-accounts">
-                            <div className="flex items-center justify-between p-4 transition-colors hover:bg-white/5 active:bg-white/10">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex size-8 items-center justify-center rounded-lg bg-[#0ea5e9]/20 text-[#0ea5e9]">
-                                        <span className="material-symbols-outlined text-xl">link</span>
-                                    </div>
-                                    <span className="text-base font-medium text-zinc-900 dark:text-white">
-                                        Linked Accounts
                                     </span>
                                 </div>
                                 <span className="material-symbols-outlined text-xl text-zinc-500 dark:text-zinc-600">
@@ -94,21 +63,6 @@ export default function SettingsPage() {
                         Preferences
                     </h2>
                     <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
-                        <Link href="/settings/notifications">
-                            <div className="flex items-center justify-between border-b border-white/10 p-4 transition-colors hover:bg-white/5 active:bg-white/10">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex size-8 items-center justify-center rounded-lg bg-[#0ea5e9]/20 text-[#0ea5e9]">
-                                        <span className="material-symbols-outlined text-xl">notifications</span>
-                                    </div>
-                                    <span className="text-base font-medium text-zinc-900 dark:text-white">
-                                        Notifications
-                                    </span>
-                                </div>
-                                <span className="material-symbols-outlined text-xl text-zinc-500 dark:text-zinc-600">
-                                    chevron_right
-                                </span>
-                            </div>
-                        </Link>
                         <div className="flex items-center justify-between p-4">
                             <div className="flex items-center gap-3">
                                 <div className="flex size-8 items-center justify-center rounded-lg bg-[#0ea5e9]/20 text-[#0ea5e9]">
@@ -125,60 +79,6 @@ export default function SettingsPage() {
                                 />
                             )}
                         </div>
-                    </div>
-                </div>
-
-                {/* Support Section */}
-                <div className="mb-8">
-                    <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                        Support
-                    </h2>
-                    <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
-                        <Link href="/settings/help">
-                            <div className="flex items-center justify-between border-b border-white/10 p-4 transition-colors hover:bg-white/5 active:bg-white/10">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex size-8 items-center justify-center rounded-lg bg-[#0ea5e9]/20 text-[#0ea5e9]">
-                                        <span className="material-symbols-outlined text-xl">help</span>
-                                    </div>
-                                    <span className="text-base font-medium text-zinc-900 dark:text-white">
-                                        Help Center
-                                    </span>
-                                </div>
-                                <span className="material-symbols-outlined text-xl text-zinc-500 dark:text-zinc-600">
-                                    chevron_right
-                                </span>
-                            </div>
-                        </Link>
-                        <Link href="/settings/contact">
-                            <div className="flex items-center justify-between border-b border-white/10 p-4 transition-colors hover:bg-white/5 active:bg-white/10">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex size-8 items-center justify-center rounded-lg bg-[#0ea5e9]/20 text-[#0ea5e9]">
-                                        <span className="material-symbols-outlined text-xl">support_agent</span>
-                                    </div>
-                                    <span className="text-base font-medium text-zinc-900 dark:text-white">
-                                        Contact Support
-                                    </span>
-                                </div>
-                                <span className="material-symbols-outlined text-xl text-zinc-500 dark:text-zinc-600">
-                                    chevron_right
-                                </span>
-                            </div>
-                        </Link>
-                        <Link href="/settings/privacy">
-                            <div className="flex items-center justify-between p-4 transition-colors hover:bg-white/5 active:bg-white/10">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex size-8 items-center justify-center rounded-lg bg-[#0ea5e9]/20 text-[#0ea5e9]">
-                                        <span className="material-symbols-outlined text-xl">security</span>
-                                    </div>
-                                    <span className="text-base font-medium text-zinc-900 dark:text-white">
-                                        Privacy Policy
-                                    </span>
-                                </div>
-                                <span className="material-symbols-outlined text-xl text-zinc-500 dark:text-zinc-600">
-                                    chevron_right
-                                </span>
-                            </div>
-                        </Link>
                     </div>
                 </div>
 

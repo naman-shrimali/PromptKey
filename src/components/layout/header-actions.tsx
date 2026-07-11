@@ -1,35 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useSyncExternalStore } from "react";
+import { useTheme } from "next-themes";
 
-interface HeaderActionsProps {
-    isLoggedIn: boolean;
-}
+const emptySubscribe = () => () => {};
 
-export function HeaderActions({ isLoggedIn }: HeaderActionsProps) {
-    const pathname = usePathname();
-
-    if (!isLoggedIn) {
-        return (
-            <Link href="/login">
-                <button className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90">
-                    Login
-                </button>
-            </Link>
-        );
-    }
-
-    // If logged in and on settings page, show nothing (or we could show "Done" here if desired)
-    if (pathname === "/settings") {
-        return null;
-    }
+export function HeaderActions({ isLoggedIn }: { isLoggedIn: boolean }) {
+    const { resolvedTheme, setTheme } = useTheme();
+    // true after hydration only — avoids a server/client theme-icon mismatch
+    const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
     return (
-        <Link href="/settings">
-            <button className="flex size-10 items-center justify-center rounded-full text-zinc-900 transition-colors hover:bg-white/10 dark:text-white">
-                <span className="material-symbols-outlined text-2xl">settings</span>
+        <div className="flex items-center gap-2.5">
+            <button
+                type="button"
+                title="Toggle dark mode"
+                aria-label="Toggle dark mode"
+                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+                className="flex size-9 cursor-pointer items-center justify-center rounded-full border-[1.5px] border-border bg-card text-base transition-transform hover:scale-105"
+            >
+                {mounted ? (resolvedTheme === "dark" ? "☀️" : "🌙") : "🌙"}
             </button>
-        </Link>
+
+            {isLoggedIn ? (
+                <Link
+                    href="/settings"
+                    className="rounded-full bg-muted px-4.5 py-2 text-sm font-semibold transition-colors hover:bg-accent"
+                >
+                    Settings
+                </Link>
+            ) : (
+                <Link
+                    href="/login"
+                    className="rounded-full bg-muted px-4.5 py-2 text-sm font-semibold transition-colors hover:bg-accent"
+                >
+                    Log in
+                </Link>
+            )}
+        </div>
     );
 }

@@ -3,7 +3,6 @@ import { Prompt } from "@/lib/models";
 import dbConnect from "@/lib/db";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { QRActions } from "@/components/qr/qr-actions";
 import { QRGenerator } from "@/components/qr/qr-generator";
 
 async function getPrompt(id: string, userId: string) {
