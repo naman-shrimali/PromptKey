@@ -38,6 +38,13 @@ export async function GET(
             headers: { ...BASE_HEADERS, "Content-Type": "text/plain; charset=utf-8" },
         });
     }
+    // No /raw for E2E texts (SPEC §5 M4): the server can't decrypt them.
+    if (result.e2e) {
+        return new Response("Not available: this text is end-to-end encrypted.\n", {
+            status: 404,
+            headers: { ...BASE_HEADERS, "Content-Type": "text/plain; charset=utf-8" },
+        });
+    }
 
     if (!result.prompt.isOneTimeView && !isBot) {
         after(() => recordScan(result.prompt._id));

@@ -1,95 +1,37 @@
-"use client";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import dbConnect from "@/lib/db";
+import { User } from "@/lib/models";
+import { SettingsPanel } from "@/components/dashboard/settings-panel";
 
-import Link from "next/link";
-import { Switch } from "@/components/ui/switch";
-import { useTheme } from "next-themes";
-import { handleSignOut } from "@/app/actions/auth";
-import { useSyncExternalStore } from "react";
+export const dynamic = "force-dynamic";
 
-const emptySubscribe = () => () => {};
+export default async function SettingsPage() {
+    const session = await auth();
+    if (!session?.user) redirect("/login");
 
-export default function SettingsPage() {
-    const { theme, setTheme } = useTheme();
-    // true after hydration only — avoids a server/client toggle mismatch
-    const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
+    await dbConnect();
+    const user = await User.findById(session.user.id).lean<{
+        name?: string;
+        email?: string;
+        image?: string;
+        apiToken?: string | null;
+    }>();
+    if (!user) redirect("/login");
+
     return (
-        <div className="relative mx-auto flex h-auto min-h-screen w-full max-w-md flex-col overflow-x-hidden bg-background-light dark:bg-background-dark">
-            {/* Top App Bar */}
-            <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-background-light/80 px-4 pb-3 pt-4 backdrop-blur-sm dark:bg-background-dark/80">
-                <div className="flex size-12 shrink-0 items-center">
-                    <Link href="/dashboard" className="flex items-center justify-center text-zinc-900 dark:text-white">
-                        <span className="material-symbols-outlined text-2xl">arrow_back_ios_new</span>
-                    </Link>
-                </div>
-                <h1 className="text-lg font-bold leading-tight tracking-[-0.015em] text-zinc-900 dark:text-white">
-                    Settings
-                </h1>
-                <div className="flex w-12 items-center justify-end">
-                    <Link href="/dashboard" className="text-base font-semibold text-primary">
-                        Done
-                    </Link>
-                </div>
-            </header>
-
-            {/* Main Content */}
-            <main className="flex-1 px-4 pt-6">
-                {/* Account Section */}
-                <div className="mb-6">
-                    <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                        Account
-                    </h2>
-                    <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
-                        <Link href="/settings/edit-profile">
-                            <div className="flex items-center justify-between p-4 transition-colors hover:bg-white/5 active:bg-white/10">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex size-8 items-center justify-center rounded-lg bg-[#0ea5e9]/20 text-[#0ea5e9]">
-                                        <span className="material-symbols-outlined text-xl">person</span>
-                                    </div>
-                                    <span className="text-base font-medium text-zinc-900 dark:text-white">
-                                        Edit Profile
-                                    </span>
-                                </div>
-                                <span className="material-symbols-outlined text-xl text-zinc-500 dark:text-zinc-600">
-                                    chevron_right
-                                </span>
-                            </div>
-                        </Link>
-                    </div>
-                </div>
-
-                {/* Preferences Section */}
-                <div className="mb-6">
-                    <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                        Preferences
-                    </h2>
-                    <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
-                        <div className="flex items-center justify-between p-4">
-                            <div className="flex items-center gap-3">
-                                <div className="flex size-8 items-center justify-center rounded-lg bg-[#0ea5e9]/20 text-[#0ea5e9]">
-                                    <span className="material-symbols-outlined text-xl">dark_mode</span>
-                                </div>
-                                <span className="text-base font-medium text-zinc-900 dark:text-white">
-                                    Dark Mode
-                                </span>
-                            </div>
-                            {mounted && (
-                                <Switch
-                                    checked={theme === "dark"}
-                                    onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
-                                />
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Log Out Button */}
-                <button
-                    onClick={() => handleSignOut()}
-                    className="mb-10 w-full rounded-xl border border-white/10 bg-white/5 py-4 text-base font-semibold text-red-500 transition-colors hover:bg-red-500/10 active:bg-red-500/20"
-                >
-                    Log Out
-                </button>
-            </main>
+        <div className="mx-auto w-full max-w-xl px-5 pb-20 pt-4">
+            <h1 className="font-display text-2xl font-bold">Settings</h1>
+            <div className="mt-5">
+                <SettingsPanel
+                    user={{
+                        name: user.name ?? "",
+                        email: user.email ?? "",
+                        image: user.image ?? null,
+                    }}
+                    hasApiToken={!!user.apiToken}
+                />
+            </div>
         </div>
     );
 }

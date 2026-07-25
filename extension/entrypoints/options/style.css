@@ -1,0 +1,119 @@
+:root {
+  --bg: #faf8f3;
+  --card: #fff;
+  --ink: #241f36;
+  --mut: #6e6884;
+  --line: #e7e2d6;
+  --soft: #f2eee4;
+  --acc: #7c5cfc;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #151220;
+    --card: #201b31;
+    --ink: #f1eefa;
+    --mut: #9c94b8;
+    --line: #342d4c;
+    --soft: #272138;
+  }
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  justify-content: center;
+  padding: 40px 16px;
+}
+main {
+  width: 100%;
+  max-width: 440px;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  padding: 24px;
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+.tile {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: var(--acc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+label {
+  display: block;
+  margin-bottom: 16px;
+}
+label span {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+input {
+  width: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 9px 12px;
+  font: inherit;
+  outline: none;
+}
+input:focus {
+  border-color: var(--acc);
+}
+small {
+  display: block;
+  color: var(--mut);
+  font-size: 12px;
+  margin-top: 4px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.primary {
+  all: unset;
+  cursor: pointer;
+  background: var(--acc);
+  color: #fff;
+  font-weight: 700;
+  padding: 9px 22px;
+  border-radius: 12px;
+}
+.chip {
+  all: unset;
+  cursor: pointer;
+  border: 1.5px solid var(--line);
+  color: var(--mut);
+  font-weight: 600;
+  font-size: 12.5px;
+  padding: 8px 14px;
+  border-radius: 99px;
+}
+#status {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+#status.ok {
+  color: #2e9e5b;
+}
+#status.bad {
+  color: #d94f4f;
+}

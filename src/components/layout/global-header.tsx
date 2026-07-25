@@ -30,6 +30,12 @@ export async function GlobalHeader() {
                 >
                     Library
                 </Link>
+                <Link
+                    href="/market"
+                    className="rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                >
+                    Market
+                </Link>
             </nav>
 
             <div className="flex-1" />
