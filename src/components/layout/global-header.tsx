@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { HeaderActions } from "@/components/layout/header-actions";
+import { MobileNav } from "@/components/layout/mobile-nav";
 
 export async function GlobalHeader() {
     const session = await auth();
@@ -40,6 +41,7 @@ export async function GlobalHeader() {
 
             <div className="flex-1" />
 
+            <MobileNav />
             <HeaderActions isLoggedIn={!!session} />
         </header>
     );
