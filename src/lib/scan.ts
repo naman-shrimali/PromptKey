@@ -1,11 +1,11 @@
-import { Prompt } from "./models";
+import { Prompt, ScanEvent } from "./models";
 import { decrypt } from "./encryption";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type PromptDoc = any;
 
 export type ScanResolution =
-    | { status: "ok"; prompt: PromptDoc; content: string }
+    | { status: "ok"; prompt: PromptDoc; content: string; e2e: boolean }
     | { status: "not_found" }
     | { status: "gone" };
 
@@ -31,6 +31,38 @@ export async function recordScan(promptId: unknown): Promise<void> {
         );
     } catch {
         // Scan counting must never take the page down (SPEC §8).
+    }
+}
+
+/**
+ * Analytics event (SPEC §5 M4): daily-bucketable timestamp, coarse
+ * device class from the UA, and the referrer *host* only — deliberately
+ * nothing that could fingerprint a reader. Rows expire after 90 days.
+ */
+export async function logScanEvent(
+    promptId: unknown,
+    userAgent: string | null,
+    referer: string | null
+): Promise<void> {
+    try {
+        let referrer = "";
+        if (referer) {
+            try {
+                referrer = new URL(referer).host;
+            } catch {
+                referrer = "";
+            }
+        }
+        await ScanEvent.create({
+            promptId,
+            at: new Date(),
+            deviceClass: /Mobi|Android|iPhone|iPad|iPod/i.test(userAgent ?? "")
+                ? "mobile"
+                : "desktop",
+            referrer,
+        });
+    } catch {
+        // Analytics must never take the page down.
     }
 }
 
@@ -69,10 +101,13 @@ export async function resolveScan(
             if (!consumeOneTime) return { status: "gone" };
             const claimed = await claimOneTimeView(slug);
             if (!claimed) return { status: "gone" };
-            return { status: "ok", prompt: claimed, content: decryptPrompt(claimed) };
+            // E2E: the server can't decrypt — the page ships ciphertext.
+            if (claimed.e2e) return { status: "ok", prompt: claimed, content: "", e2e: true };
+            return { status: "ok", prompt: claimed, content: decryptPrompt(claimed), e2e: false };
         }
 
-        return { status: "ok", prompt, content: decryptPrompt(prompt) };
+        if (prompt.e2e) return { status: "ok", prompt, content: "", e2e: true };
+        return { status: "ok", prompt, content: decryptPrompt(prompt), e2e: false };
     } catch (error) {
         // Undecryptable (legacy CBC record or tampered ciphertext) — the
         // reader can't be helped; show the honest gone page.

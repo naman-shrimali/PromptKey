@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PromptKey</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="head">
+      <span class="tile" aria-hidden="true">🔑</span>
+      <b>PromptKey</b>
+      <span class="spacer"></span>
+      <button id="open-options" class="ghost" title="Options">⚙️</button>
+    </header>
+
+    <main>
+      <textarea
+        id="content"
+        placeholder="Paste or select text to QR…"
+        aria-label="Text to share"
+      ></textarea>
+      <div class="meta">
+        <span id="count">0 / 50,000</span>
+        <span id="mode-note"></span>
+      </div>
+
+      <div class="chips" id="mode-row">
+        <button id="mode-offline" class="chip" aria-pressed="false">📴 Offline</button>
+        <button id="mode-link" class="chip" aria-pressed="false">🔗 Link</button>
+      </div>
+
+      <div class="chips" id="link-opts" hidden>
+        <span class="chips-label">⏳</span>
+        <button class="chip preset" data-preset="1h">1 hour</button>
+        <button class="chip preset" data-preset="24h">24 hours</button>
+        <button class="chip preset" data-preset="7d">7 days</button>
+        <button class="chip preset" data-preset="30d">30 days</button>
+        <button id="one-time" class="chip" aria-pressed="false">👁 one-time</button>
+      </div>
+
+      <p id="error" class="error" hidden></p>
+
+      <button id="make" class="primary">Make my QR →</button>
+
+      <section id="result" hidden>
+        <div class="qr-card"><canvas id="qr"></canvas></div>
+        <p id="badge" class="badge"></p>
+        <div class="url-row" id="url-row" hidden>
+          <code id="url"></code>
+          <button id="copy-url" class="chip">Copy</button>
+        </div>
+        <div class="chips">
+          <button id="dl-png" class="chip">PNG ↓</button>
+          <button id="copy-img" class="chip">Copy image</button>
+        </div>
+      </section>
+
+      <section id="history-section" hidden>
+        <h2>Recent</h2>
+        <ul id="history"></ul>
+      </section>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

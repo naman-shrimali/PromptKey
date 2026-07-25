@@ -4,7 +4,8 @@ import { useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import QRCode from "react-qr-code";
 import { toast } from "sonner";
-import { generatePrompt } from "@/app/actions";
+import { generatePrompt, generateE2ePrompt } from "@/app/actions";
+import { e2eEncrypt } from "@/lib/e2e";
 import { MAX_CHARS } from "@/lib/config";
 import {
     chooseQrMode,
@@ -22,9 +23,10 @@ import { copyQrImage, downloadQrPng, downloadQrSvg } from "@/lib/qr-export";
 type LinkResult = {
     mode: "link";
     slug: string;
-    url: string;
+    url: string; // includes #k=… for E2E — the key only exists client-side
     expiresAt: string | null;
     claimToken: string | null;
+    e2e?: boolean;
 };
 type OfflineResult = { mode: "offline"; text: string };
 type Result = LinkResult | OfflineResult;
@@ -38,6 +40,7 @@ export function CreateFlow({ isLoggedIn }: { isLoggedIn: boolean }) {
     const [content, setContent] = useState("");
     const [expiresIn, setExpiresIn] = useState<ExpiryPreset>("7d");
     const [oneTime, setOneTime] = useState(false);
+    const [e2e, setE2e] = useState(false);
     const [modeOverride, setModeOverride] = useState<QrMode | null>(null);
     const [result, setResult] = useState<Result | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -71,9 +74,25 @@ export function CreateFlow({ isLoggedIn }: { isLoggedIn: boolean }) {
         }
 
         startTransition(async () => {
-            const res = await generatePrompt({ content, isOneTimeView: oneTime, expiresIn });
+            let res;
+            let fragment = "";
+            if (e2e) {
+                // Encrypt in-browser; only ciphertext leaves this machine
+                // and the key rides in the URL fragment (SPEC §5 M4).
+                const payload = await e2eEncrypt(content);
+                fragment = `#k=${payload.key}`;
+                res = await generateE2ePrompt({
+                    ciphertext: payload.ciphertext,
+                    iv: payload.iv,
+                    charCount,
+                    isOneTimeView: oneTime,
+                    expiresIn,
+                });
+            } else {
+                res = await generatePrompt({ content, isOneTimeView: oneTime, expiresIn });
+            }
             if (res.success && res.slug) {
-                const url = `${window.location.origin}/${res.slug}`;
+                const url = `${window.location.origin}/${res.slug}${fragment}`;
                 if (res.claimToken) {
                     addClaim({ slug: res.slug, claimToken: res.claimToken });
                 }
@@ -83,6 +102,7 @@ export function CreateFlow({ isLoggedIn }: { isLoggedIn: boolean }) {
                     url,
                     expiresAt: res.expiresAt ?? null,
                     claimToken: res.claimToken ?? null,
+                    e2e,
                 });
             } else {
                 const message =
@@ -176,6 +196,17 @@ export function CreateFlow({ isLoggedIn }: { isLoggedIn: boolean }) {
                             className={`${chipBase} ${oneTime ? chipOn : chipOff}`}
                         >
                             👁 one-time
+                        </button>
+
+                        {/* E2E encryption (SPEC §5 M4) */}
+                        <button
+                            type="button"
+                            onClick={() => setE2e((v) => !v)}
+                            aria-pressed={e2e}
+                            title="Encrypted in your browser — even we can't read it"
+                            className={`${chipBase} ${e2e ? chipOn : chipOff}`}
+                        >
+                            🔒 private (E2E)
                         </button>
                     </>
                 ) : (
@@ -297,7 +328,9 @@ function ResultPanel({ result, isLoggedIn }: { result: Result; isLoggedIn: boole
                     <p className="mt-2 inline-block rounded-xl border-[1.5px] border-ring bg-accent px-3 py-1.5 text-[13px] font-semibold">
                         {result.mode === "offline"
                             ? "📴 Offline QR — works without internet, can't expire, fully private."
-                            : `🔗 Link QR — trackable, editable, expires ${expiresLabel === "never" ? "never" : `on ${expiresLabel}`}.`}
+                            : result.e2e
+                              ? `🔒 E2E QR — even we can't read it. The key travels only inside this QR, expires ${expiresLabel === "never" ? "never" : `on ${expiresLabel}`}.`
+                              : `🔗 Link QR — trackable, editable, expires ${expiresLabel === "never" ? "never" : `on ${expiresLabel}`}.`}
                     </p>
 
                     {result.mode === "link" && (
@@ -340,7 +373,7 @@ function ResultPanel({ result, isLoggedIn }: { result: Result; isLoggedIn: boole
                         </button>
                         {result.mode === "link" && (
                             <a
-                                href={`/${result.slug}`}
+                                href={result.url}
                                 target="_blank"
                                 rel="noopener"
                                 className={`${chipBase} ${chipOff} inline-block`}

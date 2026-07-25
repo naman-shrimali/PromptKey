@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PromptKey Options</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main>
+      <header class="head">
+        <span class="tile" aria-hidden="true">🔑</span>
+        <b>PromptKey options</b>
+      </header>
+
+      <label>
+        <span>PromptKey server</span>
+        <input id="api-base" type="url" placeholder="https://promptkey.app" />
+        <small>Where link QRs are created and your library lives.</small>
+      </label>
+
+      <label>
+        <span>API token</span>
+        <input id="api-token" type="password" placeholder="pk_…" autocomplete="off" />
+        <small>
+          Generate one on the website under <b>Settings → API token</b>. Needed so the
+          extension can save link QRs to your library.
+        </small>
+      </label>
+
+      <div class="row">
+        <button id="save" class="primary">Save</button>
+        <button id="test" class="chip">Test connection</button>
+        <span id="status" role="status"></span>
+      </div>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

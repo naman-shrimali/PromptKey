@@ -1,0 +1,234 @@
+/* PromptKey design tokens (see web app globals.css) */
+:root {
+  --bg: #faf8f3;
+  --card: #fff;
+  --ink: #241f36;
+  --mut: #6e6884;
+  --line: #e7e2d6;
+  --soft: #f2eee4;
+  --acc: #7c5cfc;
+  --acc-soft: #f1edfe;
+  --acc-line: #cabffa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #151220;
+    --card: #201b31;
+    --ink: #f1eefa;
+    --mut: #9c94b8;
+    --line: #342d4c;
+    --soft: #272138;
+    --acc-soft: #2d2547;
+    --acc-line: #4c3f7d;
+  }
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  width: 360px;
+  background: var(--bg);
+  color: var(--ink);
+  font: 13.5px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px 8px;
+}
+.tile {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--acc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+.spacer {
+  flex: 1;
+}
+.ghost {
+  all: unset;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+.ghost:hover {
+  background: var(--soft);
+}
+main {
+  padding: 0 14px 14px;
+}
+textarea {
+  width: 100%;
+  min-height: 96px;
+  resize: vertical;
+  background: var(--card);
+  color: var(--ink);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font: inherit;
+  outline: none;
+}
+textarea:focus {
+  border-color: var(--acc-line);
+}
+.meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 6px 2px 8px;
+  font-size: 11px;
+  color: var(--mut);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.chips-label {
+  font-size: 12px;
+}
+.chip {
+  all: unset;
+  cursor: pointer;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  color: var(--mut);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 99px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.chip:hover {
+  border-color: var(--acc-line);
+  color: var(--ink);
+}
+.chip[aria-pressed="true"],
+.chip.on {
+  border-color: var(--acc-line);
+  background: var(--acc-soft);
+  color: var(--ink);
+}
+.chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.primary {
+  all: unset;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: var(--acc);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14.5px;
+  padding: 12px 0;
+  border-radius: 14px;
+  box-shadow: 0 5px 16px rgba(124, 92, 252, 0.35);
+  transition: transform 0.12s;
+}
+.primary:active {
+  transform: scale(0.98);
+}
+.primary[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.error {
+  color: #d94f4f;
+  font-weight: 600;
+  font-size: 12px;
+  margin: 4px 2px 8px;
+}
+#result {
+  margin-top: 12px;
+}
+.qr-card {
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+}
+#qr {
+  width: 100% !important;
+  height: auto !important;
+  border-radius: 8px;
+}
+.badge {
+  margin: 8px 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: var(--acc-soft);
+  border: 1.5px solid var(--acc-line);
+  border-radius: 10px;
+  padding: 6px 10px;
+}
+.url-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.url-row code {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 600 11.5px ui-monospace, Menlo, monospace;
+  background: var(--soft);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+#history-section {
+  margin-top: 14px;
+}
+#history-section h2 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--mut);
+  margin-bottom: 6px;
+}
+#history {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+#history li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 7px 10px;
+  font-size: 12px;
+}
+#history .preview {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#history a {
+  color: var(--acc);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 11.5px;
+}

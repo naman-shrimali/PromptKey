@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "dev:local": "MONGODB_URI=mongodb://127.0.0.1:27018/promptkey next dev"
+    "dev:local": "MONGODB_URI=mongodb://127.0.0.1:27018/promptkey RAZORPAY_WEBHOOK_SECRET=whsec_dev_only next dev"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.1",
@@ -28,6 +28,7 @@
     "next": "16.0.7",
     "next-auth": "^5.0.0-beta.30",
     "next-themes": "^0.4.6",
+    "qrcode": "^1.5.4",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-qr-code": "^2.0.18",
@@ -39,6 +40,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

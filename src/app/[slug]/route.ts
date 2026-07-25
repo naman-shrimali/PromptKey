@@ -1,8 +1,8 @@
 import { headers } from "next/headers";
 import { after } from "next/server";
 import dbConnect from "@/lib/db";
-import { resolveScan, recordScan, isBotRequest } from "@/lib/scan";
-import { renderScanPage, renderGonePage } from "@/lib/scan-html";
+import { resolveScan, recordScan, logScanEvent, isBotRequest } from "@/lib/scan";
+import { renderScanPage, renderE2eScanPage, renderGonePage } from "@/lib/scan-html";
 
 export const dynamic = "force-dynamic";
 
@@ -42,18 +42,33 @@ export async function GET(
     const { prompt, content } = result;
 
     // Count the scan without blocking the render; skip previews/crawlers
-    // (SPEC §2, §8). One-time views were already counted by the claim.
-    if (!prompt.isOneTimeView && !isBot) {
-        after(() => recordScan(prompt._id));
+    // (SPEC §2, §8). One-time views were already counted by the claim,
+    // but their analytics event still needs logging (SPEC §5 M4).
+    if (!isBot) {
+        const userAgent = headersList.get("user-agent");
+        const referer = headersList.get("referer");
+        after(async () => {
+            if (!prompt.isOneTimeView) await recordScan(prompt._id);
+            await logScanEvent(prompt._id, userAgent, referer);
+        });
     }
 
-    const html = renderScanPage({
-        slug,
-        content,
-        charCount: prompt.charCount || [...content].length,
-        createdAt: prompt.createdAt ?? new Date(),
-        isOneTimeView: !!prompt.isOneTimeView,
-    });
+    const html = result.e2e
+        ? renderE2eScanPage({
+              slug,
+              ciphertext: prompt.encryptedContent,
+              iv: prompt.iv,
+              charCount: prompt.charCount ?? 0,
+              createdAt: prompt.createdAt ?? new Date(),
+              isOneTimeView: !!prompt.isOneTimeView,
+          })
+        : renderScanPage({
+              slug,
+              content,
+              charCount: prompt.charCount || [...content].length,
+              createdAt: prompt.createdAt ?? new Date(),
+              isOneTimeView: !!prompt.isOneTimeView,
+          });
 
     return new Response(html, { status: 200, headers: HTML_HEADERS });
 }
