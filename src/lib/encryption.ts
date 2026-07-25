@@ -1,24 +1,47 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 
-const ALGORITHM = 'aes-256-cbc';
-const SECRET_KEY = process.env.ENCRYPTION_KEY!; // Must be 32 chars
+// AES-256-GCM: authenticated encryption — decrypt fails loudly if the
+// ciphertext, IV, or auth tag was tampered with (SPEC §2).
+const ALGORITHM = "aes-256-gcm";
+const IV_BYTES = 12; // GCM standard nonce size
+const HKDF_INFO = "promptkey:content-encryption:v1";
 
-export const encrypt = (text: string) => {
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(SECRET_KEY), iv);
-    let encrypted = cipher.update(text);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
+let cachedKey: Buffer | null = null;
+
+// The raw env string is key *material*, not the key itself — derive the
+// actual key via HKDF so its length/entropy shape doesn't matter.
+function getKey(): Buffer {
+    if (cachedKey) return cachedKey;
+    const secret = process.env.ENCRYPTION_KEY;
+    if (!secret) {
+        throw new Error("ENCRYPTION_KEY environment variable is not set");
+    }
+    cachedKey = Buffer.from(
+        crypto.hkdfSync("sha256", secret, Buffer.alloc(0), HKDF_INFO, 32)
+    );
+    return cachedKey;
+}
+
+export function encrypt(text: string) {
+    const iv = crypto.randomBytes(IV_BYTES);
+    const cipher = crypto.createCipheriv(ALGORITHM, getKey(), iv);
+    const encrypted = Buffer.concat([cipher.update(text, "utf8"), cipher.final()]);
     return {
-        iv: iv.toString('hex'),
-        content: encrypted.toString('hex')
+        iv: iv.toString("hex"),
+        content: encrypted.toString("hex"),
+        authTag: cipher.getAuthTag().toString("hex"),
     };
-};
+}
 
-export const decrypt = (ivHex: string, encryptedHex: string) => {
-    const iv = Buffer.from(ivHex, 'hex');
-    const encryptedText = Buffer.from(encryptedHex, 'hex');
-    const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(SECRET_KEY), iv);
-    let decrypted = decipher.update(encryptedText);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-    return decrypted.toString();
-};
+export function decrypt(ivHex: string, encryptedHex: string, authTagHex: string): string {
+    const decipher = crypto.createDecipheriv(ALGORITHM, getKey(), Buffer.from(ivHex, "hex"));
+    decipher.setAuthTag(Buffer.from(authTagHex, "hex"));
+    return Buffer.concat([
+        decipher.update(Buffer.from(encryptedHex, "hex")),
+        decipher.final(),
+    ]).toString("utf8");
+}
+
+export function sha256Hex(text: string): string {
+    return crypto.createHash("sha256").update(text, "utf8").digest("hex");
+}

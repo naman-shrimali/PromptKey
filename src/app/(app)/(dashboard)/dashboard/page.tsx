@@ -53,7 +53,7 @@ export default async function DashboardPage() {
                                 <span className="material-symbols-outlined text-4xl">qr_code_2</span>
                             </div>
                             <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">No QR Codes Yet</h2>
-                            <p className="mt-1 max-w-xs text-sm text-zinc-600 dark:text-zinc-400">Tap the '+' button to generate your first QR code.</p>
+                            <p className="mt-1 max-w-xs text-sm text-zinc-600 dark:text-zinc-400">Tap the &apos;+&apos; button to generate your first QR code.</p>
                             <Link href="/">
                                 <button className="mt-6 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white">Create New QR Code</button>
                             </Link>
