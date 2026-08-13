@@ -44,7 +44,25 @@ export async function hasAccess(
 }
 
 export function priceOf(catalogPrompt: { priceINR?: number | null }): number {
+    // null → default price; an explicit 0 means free.
     return catalogPrompt.priceINR ?? PROMPT_DEFAULT_INR;
+}
+
+export function isFreePrompt(catalogPrompt: { priceINR?: number | null }): boolean {
+    return priceOf(catalogPrompt) === 0;
+}
+
+/**
+ * Access check that knows about free prompts (priceINR: 0). Free content
+ * is readable by everyone, signed in or not — it's the top of the funnel.
+ * Prefer this over hasAccess() wherever the prompt document is in hand.
+ */
+export async function hasAccessToPrompt(
+    userId: string | null,
+    catalogPrompt: { _id: unknown; priceINR?: number | null }
+): Promise<boolean> {
+    if (isFreePrompt(catalogPrompt)) return true;
+    return hasAccess(userId, String(catalogPrompt._id));
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -63,6 +81,7 @@ export function serializeCatalogPrompt(doc: any, withContent: boolean) {
         category: doc.category as string,
         previewText: doc.previewText as string,
         priceINR: priceOf(doc),
+        isFree: isFreePrompt(doc),
         ratingAvg: doc.ratingAvg as number,
         ratingCount: doc.ratingCount as number,
         models: (doc.variants ?? []).map((v: any) => ({

@@ -11,7 +11,9 @@ import { CatalogPrompt, Purchase, Subscription } from "@/lib/models";
 import { encrypt } from "@/lib/encryption";
 import {
     hasAccess,
+    hasAccessToPrompt,
     hasActiveSubscription,
+    isFreePrompt,
     serializeCatalogPrompt,
 } from "@/lib/market-access";
 import { processWebhookEvent } from "@/lib/webhook-handlers";
@@ -122,6 +124,61 @@ describe("marketplace access (SPEC §5 M5)", () => {
         );
         expect(await hasAccess(userId, String(other._id))).toBe(false); // catalog gone
         expect(await hasAccess(userId, String(bought._id))).toBe(true); // purchase survives
+    });
+});
+
+describe("free prompts (priceINR: 0)", () => {
+    async function makeFreePrompt(secret = "the free prompt content") {
+        const enc = encrypt(secret);
+        return CatalogPrompt.create({
+            slug: `free-${Math.random().toString(36).slice(2, 8)}`,
+            title: "Free prompt",
+            category: "coding",
+            previewText: "teaser",
+            priceINR: 0,
+            isPublished: true,
+            variants: [
+                {
+                    model: "generic",
+                    modelLabel: "Any model",
+                    content: enc.content,
+                    iv: enc.iv,
+                    authTag: enc.authTag,
+                },
+            ],
+        });
+    }
+
+    it("distinguishes free from default-priced and explicitly-priced", async () => {
+        expect(isFreePrompt({ priceINR: 0 })).toBe(true);
+        expect(isFreePrompt({ priceINR: 4900 })).toBe(false);
+        expect(isFreePrompt({ priceINR: null })).toBe(false); // null → default price
+        expect(isFreePrompt({})).toBe(false);
+    });
+
+    it("grants access to everyone, including signed-out visitors", async () => {
+        const free = await makeFreePrompt();
+        expect(await hasAccessToPrompt(null, free)).toBe(true);
+        expect(await hasAccessToPrompt(String(oid()), free)).toBe(true);
+    });
+
+    it("still gates paid prompts for the same anonymous caller", async () => {
+        const paid = await makeCatalogPrompt();
+        expect(await hasAccessToPrompt(null, paid)).toBe(false);
+        expect(await hasAccessToPrompt(String(oid()), paid)).toBe(false);
+    });
+
+    it("serializes unlocked so anonymous readers get the content", async () => {
+        const secret = "FREE-CONTENT-MARKER";
+        const free = await makeFreePrompt(secret);
+        const access = await hasAccessToPrompt(null, free);
+        const payload = serializeCatalogPrompt(free, access);
+
+        expect(payload.locked).toBe(false);
+        expect(payload.isFree).toBe(true);
+        if (!payload.locked) {
+            expect(payload.variants[0].content).toBe(secret);
+        }
     });
 });
 

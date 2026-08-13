@@ -3,7 +3,7 @@ import { z } from "zod";
 import dbConnect from "@/lib/db";
 import { resolveApiUserId } from "@/lib/api-auth";
 import { CatalogPrompt, Rating } from "@/lib/models";
-import { findPublishedCatalogPrompt, hasAccess } from "@/lib/market-access";
+import { findPublishedCatalogPrompt, hasAccessToPrompt } from "@/lib/market-access";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +37,7 @@ export async function POST(
         );
     }
 
-    if (!(await hasAccess(userId, String(prompt._id)))) {
+    if (!(await hasAccessToPrompt(userId, prompt))) {
         return NextResponse.json(
             { error: { code: "forbidden", message: "Only buyers and subscribers can rate" } },
             { status: 403 }

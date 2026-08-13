@@ -41,6 +41,7 @@
 
       <p id="error" class="error" hidden></p>
 
+      <button id="insert" class="primary" hidden></button>
       <button id="make" class="primary">Make my QR →</button>
 
       <section id="result" hidden>
@@ -54,6 +55,15 @@
           <button id="dl-png" class="chip">PNG ↓</button>
           <button id="copy-img" class="chip">Copy image</button>
         </div>
+      </section>
+
+      <section id="library-section" hidden>
+        <div class="sec-head">
+          <h2>Library</h2>
+          <input id="lib-search" type="search" placeholder="Filter…" aria-label="Filter library" />
+        </div>
+        <p id="lib-note" class="lib-note" hidden></p>
+        <ul id="library"></ul>
       </section>
 
       <section id="history-section" hidden>

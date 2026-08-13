@@ -5,7 +5,7 @@ import dbConnect from "@/lib/db";
 import { Rating } from "@/lib/models";
 import {
     findPublishedCatalogPrompt,
-    hasAccess,
+    hasAccessToPrompt,
     hasActiveSubscription,
     serializeCatalogPrompt,
 } from "@/lib/market-access";
@@ -33,7 +33,7 @@ export default async function MarketDetailPage({
 
     const session = await auth();
     const userId = session?.user?.id ?? null;
-    const access = await hasAccess(userId, String(prompt._id));
+    const access = await hasAccessToPrompt(userId, prompt);
     const subscribed = userId ? await hasActiveSubscription(userId) : false;
 
     // The serializer is the paywall: without access, variant content
@@ -81,7 +81,7 @@ export default async function MarketDetailPage({
                     </p>
                 </div>
                 <span className="font-display text-2xl font-bold text-primary">
-                    {inr(data.priceINR)}
+                    {data.isFree ? "Free" : inr(data.priceINR)}
                 </span>
             </div>
 
@@ -135,7 +135,18 @@ export default async function MarketDetailPage({
                     )}
                 </div>
             ) : (
-                <VariantPanel slug={data.slug} variants={data.variants} />
+                <>
+                    <VariantPanel slug={data.slug} variants={data.variants} />
+                    {data.isFree && !userId && (
+                        <p className="mt-3 text-center text-sm text-muted-foreground">
+                            Free to read.{" "}
+                            <Link href="/login" className="font-semibold text-primary hover:underline">
+                                Sign in
+                            </Link>{" "}
+                            to save it to your library or send it to your phone.
+                        </p>
+                    )}
+                </>
             )}
 
             {/* Ratings */}

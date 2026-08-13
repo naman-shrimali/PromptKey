@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import { resolveApiUserId } from "@/lib/api-auth";
 import { Purchase } from "@/lib/models";
-import { findPublishedCatalogPrompt, hasPurchased, priceOf } from "@/lib/market-access";
+import { findPublishedCatalogPrompt, hasPurchased, isFreePrompt, priceOf } from "@/lib/market-access";
 import { createOrder, razorpayKeyId } from "@/lib/razorpay";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +29,15 @@ export async function POST(
         return NextResponse.json(
             { error: { code: "not_found", message: "No such catalog prompt" } },
             { status: 404 }
+        );
+    }
+
+    // Razorpay rejects zero-amount orders, and charging for free content
+    // would be wrong anyway — fail loudly rather than at the gateway.
+    if (isFreePrompt(prompt)) {
+        return NextResponse.json(
+            { error: { code: "free_prompt", message: "This prompt is free — no purchase needed" } },
+            { status: 400 }
         );
     }
 

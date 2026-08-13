@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import { resolveApiUserId } from "@/lib/api-auth";
-import { findPublishedCatalogPrompt, hasAccess, serializeCatalogPrompt } from "@/lib/market-access";
+import {
+    findPublishedCatalogPrompt,
+    hasAccessToPrompt,
+    serializeCatalogPrompt,
+} from "@/lib/market-access";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +26,7 @@ export async function GET(
     }
 
     const userId = await resolveApiUserId(request);
-    const access = await hasAccess(userId, String(prompt._id));
+    const access = await hasAccessToPrompt(userId, prompt);
 
     return NextResponse.json({ data: serializeCatalogPrompt(prompt, access) });
 }

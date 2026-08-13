@@ -145,7 +145,9 @@ export async function GET(request: Request) {
         const prompts = await Prompt.find(filter)
             .sort({ createdAt: -1 })
             .limit(limit + 1)
-            .select("shortSlug title charCount scanCount isFavorite isOneTimeView tags createdAt expiresAt")
+            .select(
+                "shortSlug title charCount scanCount isFavorite isOneTimeView e2e tags createdAt expiresAt"
+            )
             .lean();
 
         const hasMore = prompts.length > limit;
@@ -163,6 +165,7 @@ export async function GET(request: Request) {
                         scanCount: p.scanCount,
                         isFavorite: p.isFavorite,
                         isOneTimeView: p.isOneTimeView,
+                        e2e: !!p.e2e,
                         tags: p.tags,
                         createdAt: p.createdAt,
                         expiresAt: p.expiresAt,

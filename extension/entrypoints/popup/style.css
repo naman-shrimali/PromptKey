@@ -145,6 +145,21 @@ textarea:focus {
   opacity: 0.6;
   cursor: not-allowed;
 }
+/* When an AI site is detected, inserting is the primary action and the
+   QR button steps down to secondary. */
+#insert + #make.demoted {
+  margin-top: 8px;
+  background: transparent;
+  color: var(--mut);
+  border: 1.5px solid var(--line);
+  box-shadow: none;
+  font-size: 13px;
+  padding: 9px 0;
+}
+#insert + #make.demoted:hover {
+  border-color: var(--acc);
+  color: var(--ink);
+}
 .error {
   color: #d94f4f;
   font-weight: 600;
@@ -193,6 +208,101 @@ textarea:focus {
   border-radius: 8px;
   padding: 6px 8px;
 }
+#library-section {
+  margin-top: 14px;
+}
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.sec-head h2 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--mut);
+  flex: 1;
+}
+#lib-search {
+  width: 108px;
+  background: var(--card);
+  color: var(--ink);
+  border: 1.5px solid var(--line);
+  border-radius: 99px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 11.5px;
+  outline: none;
+}
+#lib-search:focus {
+  border-color: var(--acc);
+}
+.lib-note {
+  font-size: 11.5px;
+  color: var(--mut);
+  margin-bottom: 6px;
+}
+#library {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 190px;
+  overflow-y: auto;
+}
+#library li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 7px 8px 7px 10px;
+}
+#library li[data-disabled="1"] {
+  opacity: 0.55;
+}
+.lib-main {
+  all: unset;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+.lib-main:hover .lib-title {
+  color: var(--acc);
+}
+.lib-title {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lib-meta {
+  display: block;
+  font-size: 10.5px;
+  color: var(--mut);
+  margin-top: 1px;
+}
+.lib-insert {
+  all: unset;
+  cursor: pointer;
+  flex: none;
+  background: var(--acc);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 5px 9px;
+  border-radius: 8px;
+}
+.lib-insert:disabled {
+  background: var(--soft);
+  color: var(--mut);
+  cursor: not-allowed;
+}
+
 #history-section {
   margin-top: 14px;
 }

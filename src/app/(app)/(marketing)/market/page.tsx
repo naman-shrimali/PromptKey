@@ -122,8 +122,10 @@ export default async function MarketPage({
                                 <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
                                     {item.category}
                                 </span>
-                                <span className="font-display text-base font-bold text-primary">
-                                    {inr(item.priceINR)}
+                                <span
+                                    className={`font-display text-base font-bold ${item.isFree ? "text-emerald-600 dark:text-emerald-400" : "text-primary"}`}
+                                >
+                                    {item.isFree ? "Free" : inr(item.priceINR)}
                                 </span>
                             </div>
                             <h2 className="mt-3 font-display text-lg font-bold leading-snug group-hover:text-primary">

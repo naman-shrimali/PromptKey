@@ -48,6 +48,10 @@ export type RemoteItem = {
     charCount: number;
     scanCount: number;
     createdAt: string;
+    isFavorite?: boolean;
+    isOneTimeView?: boolean;
+    e2e?: boolean;
+    tags?: string[];
 };
 
 export async function fetchRemoteHistory(limit = 5): Promise<RemoteItem[] | null> {
@@ -57,4 +61,33 @@ export async function fetchRemoteHistory(limit = 5): Promise<RemoteItem[] | null
     } catch {
         return null; // signed out / unreachable — history stays local
     }
+}
+
+/** The signed-in user's saved prompts, for the popup's Library picker. */
+export async function fetchLibrary(limit = 50): Promise<RemoteItem[] | null> {
+    try {
+        const data = await apiFetch<{ items: RemoteItem[] }>(`/api/prompts?limit=${limit}`);
+        return data.items;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Full plaintext of one owned prompt. Uses the owner endpoint rather than
+ * the public /{slug}/raw route on purpose: reading your own library must
+ * not count as a scan or consume a one-time view.
+ */
+export async function fetchPromptContent(slug: string): Promise<string> {
+    const data = await apiFetch<{ content: string | null; contentUnavailable?: string }>(
+        `/api/prompts/${encodeURIComponent(slug)}`
+    );
+    if (data.content === null) {
+        throw new Error(
+            data.contentUnavailable === "e2e"
+                ? "This prompt is end-to-end encrypted — only the link's key can open it."
+                : "This prompt couldn't be decrypted."
+        );
+    }
+    return data.content;
 }

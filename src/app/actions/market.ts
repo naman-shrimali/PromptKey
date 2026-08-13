@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import { decrypt } from "@/lib/encryption";
 import { CatalogPrompt } from "@/lib/models";
-import { hasAccess } from "@/lib/market-access";
+import { hasAccessToPrompt } from "@/lib/market-access";
 import { createPromptRecord } from "@/lib/create-prompt";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -19,7 +19,7 @@ async function accessibleVariant(catalogSlug: string, model: string) {
     if (!prompt) return { error: "Prompt not found" as const };
 
     // The paywall applies to server actions exactly like API routes.
-    if (!(await hasAccess(session.user.id, String(prompt._id)))) {
+    if (!(await hasAccessToPrompt(session.user.id, prompt))) {
         return { error: "You don't have access to this prompt" as const };
     }
 
